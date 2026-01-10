@@ -50,7 +50,7 @@ EOF
         cd "$REQUIREMENTS_REPO"
         
         # Update current turn
-        sed -i '' 's/Current Turn.*/Current Turn\n**BACKEND** - Ready to process/' COLLABORATION.md
+        sed -i '' 's/**FRONTEND**.*/\*\*BACKEND\*\* - Ready to process/' COLLABORATION.md
         
         # Add completion log
         echo "" >> COLLABORATION.md
