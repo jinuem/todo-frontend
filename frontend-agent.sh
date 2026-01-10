@@ -18,8 +18,10 @@ while true; do
     # Check if it's frontend's turn and PRD has changes
     CURRENT_TURN=$(grep "Current Turn" COLLABORATION.md | grep "FRONTEND")
     PRD_CHANGED=$(git log -1 --name-only --format="" | grep "PRD.md")
+    LAST_COMMIT_MSG=$(git log -1 --format="%s")
     
-    if [[ -n "$CURRENT_TURN" ]] && [[ -n "$PRD_CHANGED" || ! -z "$(git log -1 --format="%s" | grep "Product Owner")" ]]; then
+    # Only process if it's our turn AND there are actual PRD changes from Product Owner
+    if [[ -n "$CURRENT_TURN" ]] && [[ -n "$PRD_CHANGED" ]] && [[ "$LAST_COMMIT_MSG" == *"Product Owner"* ]]; then
         echo "[$AGENT_NAME] My turn! Processing PRD changes..."
         
         PRD_CONTENT=$(cat PRD.md)
@@ -44,13 +46,23 @@ Tasks:
 7. Commit and push all changes with message "Frontend Agent: Implemented PRD requirements"
 
 CRITICAL: Follow PRD as single source of truth. Work in current directory.
+After completing ALL tasks including unit tests, respond with "FRONTEND_TASK_COMPLETE" to signal completion.
 EOF
+        
+        # Check if task was completed successfully
+        if [ $? -eq 0 ]; then
+            echo "[$AGENT_NAME] Task execution completed successfully."
+        else
+            echo "[$AGENT_NAME] Task execution failed. Will retry on next cycle."
+            sleep 20
+            continue
+        fi
         
         # Update collaboration log and pass turn to backend
         cd "$REQUIREMENTS_REPO"
         
         # Update current turn
-        sed -i '' 's/**FRONTEND**.*/\*\*BACKEND\*\* - Ready to process/' COLLABORATION.md
+        sed -i '' 's/\*\*FRONTEND\*\*.*/\*\*BACKEND\*\* - Ready to process/' COLLABORATION.md
         
         # Add completion log
         echo "" >> COLLABORATION.md
@@ -65,7 +77,11 @@ EOF
         git push origin init >/dev/null 2>&1
         
         echo "[$AGENT_NAME] Task completed. Turn passed to Backend Agent."
+        
+        # Wait longer before next check to avoid immediate re-processing
+        sleep 60
+    else
+        # Not our turn or no new changes, wait shorter
+        sleep 20
     fi
-    
-    sleep 20
 done
