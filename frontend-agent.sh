@@ -2,12 +2,15 @@
 
 # Frontend Agent - Monitors requirements repo and develops React frontend
 
-REQUIREMENTS_REPO="../todo-requirements"
-FRONTEND_REPO="."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REQUIREMENTS_REPO="$SCRIPT_DIR/../todo-requirements"
+FRONTEND_REPO="$SCRIPT_DIR"
 AGENT_NAME="Auto Frontend Agent"
 SERVICE_STARTED=false
 
 echo "[$AGENT_NAME] Starting automated monitoring..."
+echo "[$AGENT_NAME] Working in: $FRONTEND_REPO"
+echo "[$AGENT_NAME] Monitoring: $REQUIREMENTS_REPO"
 
 while true; do
     cd "$REQUIREMENTS_REPO"
@@ -24,6 +27,8 @@ while true; do
         
         cd "$FRONTEND_REPO"
         git pull origin init >/dev/null 2>&1
+        
+        echo "[$AGENT_NAME] Working directory: $(pwd)"
         
         # Auto-run Kiro CLI
         cat << 'EOF' | kiro-cli chat --non-interactive --trust-all-tools
@@ -42,7 +47,10 @@ Tasks:
 4. Ensure responsive design
 5. Commit your changes with message \"Frontend Agent: Auto-update from requirements\"
 
-Work efficiently and commit when done.
+Work efficiently and commit when done. 
+
+IMPORTANT: You are working in the todo-frontend repository. Do NOT create new React apps. 
+Update the existing React application in the current directory.
 
 After completing the work, start the frontend dev server in a new terminal:
 - Open new terminal for frontend service  
