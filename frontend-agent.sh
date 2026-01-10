@@ -19,12 +19,19 @@ while true; do
     CURRENT_TURN_LINE=$(grep -A1 "Current Turn" COLLABORATION.md)
     echo "[$AGENT_NAME] Current turn status: $CURRENT_TURN_LINE"
     
-    # Check if it's frontend's turn and PRD has changes
-    CURRENT_TURN=$(grep -A1 "Current Turn" COLLABORATION.md | grep "FRONTEND")
-    PRD_CHANGED=$(git log -1 --name-only --format="" | grep "PRD.md")
+    # Git-based turn coordination
+    git pull origin main >/dev/null 2>&1
     
-    # Only process if it's our turn AND there are actual PRD changes
-    if [[ -n "$CURRENT_TURN" ]] && [[ -n "$PRD_CHANGED" ]]; then
+    # Get PRD last commit timestamp and current time
+    PRD_TIMESTAMP=$(git log -1 --format="%ct" -- PRD.md)
+    CURRENT_TIME=$(date +%s)
+    TIME_DIFF=$((CURRENT_TIME - PRD_TIMESTAMP))
+    
+    # Check current turn
+    CURRENT_TURN=$(grep "^\*\*" COLLABORATION.md | head -1 | grep -o "FRONTEND\|BACKEND")
+    
+    # Proceed if it's our turn OR timeout exceeded (300s = 5min)
+    if [[ "$CURRENT_TURN" == "FRONTEND" ]] || [[ $TIME_DIFF -gt 300 ]]; then
         echo "[$AGENT_NAME] My turn! Processing PRD changes..."
         
         PRD_CONTENT=$(cat PRD.md)
@@ -61,11 +68,9 @@ EOF
             continue
         fi
         
-        # Update collaboration log and pass turn to backend
+        # Update turn using git coordination
         cd "$REQUIREMENTS_REPO"
-        
-        # Update current turn
-        sed -i '' 's/\*\*FRONTEND\*\*.*/\*\*BACKEND\*\* - Ready to process/' COLLABORATION.md
+        sed -i '' 's/\*\*FRONTEND\*\*.*/\*\*BACKEND\*\* - Ready for next PRD update/' COLLABORATION.md
         
         # Add completion log
         echo "" >> COLLABORATION.md
@@ -84,7 +89,8 @@ EOF
         # Wait before next check
         sleep 15
     else
-        # Not our turn or no new changes, wait shorter
+        # Not our turn and timeout not reached
+        echo "[$AGENT_NAME] Waiting... (${TIME_DIFF}s since last PRD update)"
         sleep 15
     fi
 done
