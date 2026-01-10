@@ -58,7 +58,7 @@ EOF
             echo "[$AGENT_NAME] Task execution completed successfully."
         else
             echo "[$AGENT_NAME] Task execution failed. Will retry on next cycle."
-            sleep 20
+            sleep 15
             continue
         fi
         
@@ -82,10 +82,10 @@ EOF
         
         echo "[$AGENT_NAME] Task completed. Turn passed to Backend Agent."
         
-        # Wait longer before next check to avoid immediate re-processing
-        sleep 60
+        # Wait before next check
+        sleep 15
     else
         # Not our turn or no new changes, wait shorter
-        sleep 20
+        sleep 15
     fi
 done
