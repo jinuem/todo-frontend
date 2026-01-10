@@ -22,10 +22,9 @@ while true; do
     # Check if it's frontend's turn and PRD has changes
     CURRENT_TURN=$(grep "Current Turn" COLLABORATION.md | grep "FRONTEND")
     PRD_CHANGED=$(git log -1 --name-only --format="" | grep "PRD.md")
-    LAST_COMMIT_MSG=$(git log -1 --format="%s")
     
-    # Only process if it's our turn AND there are actual PRD changes from Product Owner
-    if [[ -n "$CURRENT_TURN" ]] && [[ -n "$PRD_CHANGED" ]] && [[ "$LAST_COMMIT_MSG" == *"Product Owner"* ]]; then
+    # Only process if it's our turn AND there are actual PRD changes
+    if [[ -n "$CURRENT_TURN" ]] && [[ -n "$PRD_CHANGED" ]]; then
         echo "[$AGENT_NAME] My turn! Processing PRD changes..."
         
         PRD_CONTENT=$(cat PRD.md)
