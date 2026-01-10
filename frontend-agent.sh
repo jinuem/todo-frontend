@@ -26,7 +26,7 @@ while true; do
         git pull origin init >/dev/null 2>&1
         
         # Auto-run Kiro CLI
-        timeout 120 bash -c "cat << 'EOF' | kiro-cli chat --non-interactive --trust-all-tools
+        cat << 'EOF' | kiro-cli chat --non-interactive --trust-all-tools
 You are the Frontend Agent. Based on these requirements, develop/update the React frontend:
 
 REQUIREMENTS:
@@ -47,7 +47,7 @@ Work efficiently and commit when done.
 After completing the work, start the frontend dev server in a new terminal:
 - Open new terminal for frontend service  
 - Run: cd $FRONTEND_REPO && npm start
-EOF"
+EOF
 
         # Start frontend service in new terminal after code update (only once)
         if [ "$SERVICE_STARTED" = false ]; then
