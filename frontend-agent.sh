@@ -20,7 +20,7 @@ while true; do
     echo "[$AGENT_NAME] Current turn status: $CURRENT_TURN_LINE"
     
     # Check if it's frontend's turn and PRD has changes
-    CURRENT_TURN=$(grep "Current Turn" COLLABORATION.md | grep "FRONTEND")
+    CURRENT_TURN=$(grep -A1 "Current Turn" COLLABORATION.md | grep "FRONTEND")
     PRD_CHANGED=$(git log -1 --name-only --format="" | grep "PRD.md")
     
     # Only process if it's our turn AND there are actual PRD changes
