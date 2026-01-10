@@ -15,6 +15,10 @@ while true; do
     cd "$REQUIREMENTS_REPO"
     git pull origin init >/dev/null 2>&1
     
+    # Debug: Show current turn status
+    CURRENT_TURN_LINE=$(grep -A1 "Current Turn" COLLABORATION.md)
+    echo "[$AGENT_NAME] Current turn status: $CURRENT_TURN_LINE"
+    
     # Check if it's frontend's turn and PRD has changes
     CURRENT_TURN=$(grep "Current Turn" COLLABORATION.md | grep "FRONTEND")
     PRD_CHANGED=$(git log -1 --name-only --format="" | grep "PRD.md")
