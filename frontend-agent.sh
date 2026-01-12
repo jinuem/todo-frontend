@@ -27,6 +27,19 @@ while true; do
     CURRENT_TIME=$(date +%s)
     TIME_DIFF=$((CURRENT_TIME - PRD_TIMESTAMP))
     
+    # Check if PRD has been processed recently (within last 60 seconds)
+    if [[ $TIME_DIFF -lt 60 ]]; then
+        # Check if both agents have completed their work
+        LAST_FRONTEND_ENTRY=$(grep -A1 "Frontend Agent" COLLABORATION.md | tail -1 | grep "Passing turn to Backend Agent")
+        LAST_BACKEND_ENTRY=$(grep -A1 "Backend Agent" COLLABORATION.md | tail -1 | grep "Ready for next PRD update")
+        
+        if [[ -n "$LAST_FRONTEND_ENTRY" ]] && [[ -n "$LAST_BACKEND_ENTRY" ]]; then
+            echo "[$AGENT_NAME] Both agents have completed work. PRD processing finished."
+            echo "[$AGENT_NAME] Stopping monitoring loop."
+            break
+        fi
+    fi
+    
     # Check current turn
     CURRENT_TURN=$(grep "^\*\*" COLLABORATION.md | head -1 | grep -o "FRONTEND\|BACKEND")
     
