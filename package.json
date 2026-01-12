@@ -6,6 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "start:bg": "./start-background.sh",
+    "stop:bg": "./stop-background.sh",
     "test": "vitest"
   },
   "repository": {
